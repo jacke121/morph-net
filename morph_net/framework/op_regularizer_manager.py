@@ -9,6 +9,7 @@ from morph_net.framework import concat_and_slice_regularizers
 from morph_net.framework import constant_op_regularizer
 from morph_net.framework import grouping_regularizers
 from morph_net.framework import op_handler_util
+from morph_net.network_regularizers import cost_calculator
 import tensorflow as tf
 
 # Hardcoded limit for OpRegularizerManager to finish analyzing the network.
@@ -186,6 +187,10 @@ class OpRegularizerManager(object):
 
     # Set scope of all ops to be ops that were analyzed.
     self._all_ops = set(self._op_slice_dict.keys())
+
+    if all(
+        op.type not in cost_calculator.SUPPORTED_OPS for op in self._all_ops):
+      raise ValueError('Regularizer found no valid ops.')
 
   @property
   def ops(self):
